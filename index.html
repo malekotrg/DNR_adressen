@@ -57,7 +57,7 @@ fetch("DNR_adressen.csv")
   .then(text => {
 
     const rows = text.split("\n").slice(1);
-    const data = rows.map(row => row.split(","));
+    const data = rows.map(row => row.split(";"));
 
     document.getElementById("plzInput").addEventListener("input", function () {
       const plz = this.value.trim();
@@ -81,3 +81,4 @@ fetch("DNR_adressen.csv")
 
 </body>
 </html>
+
