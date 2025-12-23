@@ -2,43 +2,86 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DNR Adressensuche</title>
 
 <style>
 body {
   font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
   padding: 20px;
 }
 
+h2 {
+  text-align: center;
+  color: #333;
+}
+
 input {
-  padding: 10px;
-  font-size: 16px;
-  width: 200px;
+  display: block;
+  margin: 0 auto;
+  padding: 12px;
+  font-size: 18px;
+  width: 90%;
+  max-width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+p#noResults {
+  text-align: center;
+  color: #d9534f;
+  font-weight: bold;
+  margin-top: 10px;
 }
 
 table {
   border-collapse: collapse;
   width: 100%;
-  margin-top: 20px;
+  max-width: 600px;
+  margin: 20px auto;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: block;
+  overflow-x: auto;
 }
 
 th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
+  border: 1px solid #ddd;
+  padding: 10px;
   text-align: left;
+  white-space: nowrap;
 }
 
 th {
+  background-color: #0078D4;
+  color: #fff;
+}
+
+tr:nth-child(even) {
   background-color: #f2f2f2;
+}
+
+tr:hover {
+  background-color: #e6f0ff;
+}
+
+@media screen and (max-width: 600px) {
+  table, th, td {
+    font-size: 14px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<h2>PLZ eingeben</h2>
+<h2>DNR Adressensuche</h2>
 
-<input type="text" id="plzInput" placeholder="PLZ">
+<input type="text" id="plzInput" placeholder="PLZ eingeben / enter ZIP">
+
+<p id="noResults"></p>
 
 <table>
   <thead>
@@ -50,6 +93,7 @@ th {
   </thead>
   <tbody id="tableBody"></tbody>
 </table>
+
 <script>
 fetch("DNR_Adressen.csv")
   .then(response => response.text())
@@ -60,13 +104,16 @@ fetch("DNR_Adressen.csv")
       row.split(";").map(cell => cell.replace(/\u00A0/g, "").trim())
     );
 
+    const tbody = document.getElementById("tableBody");
+    const msg = document.getElementById("noResults");
+
     document.getElementById("plzInput").addEventListener("input", function () {
       const plz = this.value.trim();
-      const tbody = document.getElementById("tableBody");
       tbody.innerHTML = "";
+      let found = false;
 
       data.forEach(row => {
-        if (row[2] === plz) {
+        if (row[2].replace(/\D/g, "") === plz.replace(/\D/g, "")) {
           tbody.innerHTML += `
             <tr>
               <td>${row[0]}</td>
@@ -74,14 +121,15 @@ fetch("DNR_Adressen.csv")
               <td>${row[2]}</td>
             </tr>
           `;
+          found = true;
         }
       });
+
+      msg.textContent = found ? "" : "Keine Adresse gefunden / No address found, area safe 🙂";
     });
   });
 </script>
 
-
 </body>
 </html>
-
 
