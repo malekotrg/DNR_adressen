@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>DNR Adressensuche</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+input {
+  padding: 10px;
+  font-size: 16px;
+  width: 200px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+</style>
+</head>
+
+<body>
+
+<h2>PLZ eingeben</h2>
+
+<input type="text" id="plzInput" placeholder="PLZ">
+
+<table>
+  <thead>
+    <tr>
+      <th>Straße</th>
+      <th>Ort</th>
+      <th>PLZ</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+
+<script>
+fetch("DNR_adressen.csv")
+  .then(response => response.text())
+  .then(text => {
+
+    const rows = text.split("\n").slice(1);
+    const data = rows.map(row => row.split(","));
+
+    document.getElementById("plzInput").addEventListener("input", function () {
+      const plz = this.value.trim();
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+
+      data.forEach(row => {
+        if (row[2] === plz) {
+          tbody.innerHTML += `
+            <tr>
+              <td>${row[0]}</td>
+              <td>${row[1]}</td>
+              <td>${row[2]}</td>
+            </tr>
+          `;
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
