@@ -50,14 +50,15 @@ th {
   </thead>
   <tbody id="tableBody"></tbody>
 </table>
-
 <script>
-fetch("DNR_adressen.csv")
+fetch("DNR_Adressen.csv")
   .then(response => response.text())
   .then(text => {
 
-    const rows = text.split("\n").slice(1);
-    const data = rows.map(row => row.split(";"));
+    const rows = text.trim().split("\n").slice(1);
+    const data = rows.map(row =>
+      row.split(";").map(cell => cell.replace(/\u00A0/g, "").trim())
+    );
 
     document.getElementById("plzInput").addEventListener("input", function () {
       const plz = this.value.trim();
@@ -79,6 +80,8 @@ fetch("DNR_adressen.csv")
   });
 </script>
 
+
 </body>
 </html>
+
 
