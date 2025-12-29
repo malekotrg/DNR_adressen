@@ -14,7 +14,6 @@ body {
 
 h2 {
   text-align: center;
-  color: #333;
 }
 
 input {
@@ -24,42 +23,58 @@ input {
   font-size: 18px;
   width: 90%;
   max-width: 300px;
-  border: 1px solid #ccc;
+  border: 2px solid #999;
   border-radius: 6px;
 }
 
+.legend {
+  max-width: 600px;
+  margin: 15px auto;
+  display: flex;
+  justify-content: space-around;
+  font-weight: bold;
+}
+
+.legend span {
+  padding: 6px 12px;
+  border: 2px solid #333;
+}
+
+.low { background: #ffffff; }
+.mid { background: #ffcc66; }
+.high { background: #e06666; }
+
 p#noResults {
   text-align: center;
-  color: #d9534f;
+  color: #b30000;
   font-weight: bold;
 }
 
 table {
   border-collapse: collapse;
   width: 100%;
-  max-width: 700px;
+  max-width: 600px;
   margin: 20px auto;
   background-color: #fff;
 }
 
 th, td {
-  border: 1px solid #ddd;
+  border: 2px solid #444; /* lignes plus épaisses */
   padding: 10px;
   white-space: nowrap;
 }
 
 th {
-  background-color: #0078D4;
+  background-color: #003f7f;
   color: #fff;
 }
 
-/* 🔴🟠 Farbcodes */
 .orange {
-  background-color: #fff3cd;
+  background-color: #ffcc66;
 }
 
 .red {
-  background-color: #f8d7da;
+  background-color: #e06666;
 }
 </style>
 </head>
@@ -70,6 +85,12 @@ th {
 
 <input type="text" id="plzInput" placeholder="PLZ eingeben / enter ZIP">
 
+<div class="legend">
+  <span class="low">White – Low risk</span>
+  <span class="mid">Orange – Middle risk</span>
+  <span class="high">Red – High risk</span>
+</div>
+
 <p id="noResults"></p>
 
 <table>
@@ -78,7 +99,6 @@ th {
       <th>Straße</th>
       <th>Ort</th>
       <th>PLZ</th>
-      <th>Danger</th>
     </tr>
   </thead>
   <tbody id="tableBody"></tbody>
@@ -90,8 +110,6 @@ fetch("DNR_Adressen.csv")
   .then(text => {
 
     const rows = text.trim().split("\n").slice(1);
-
-    // 🔹 Regroupement des adresses
     const map = {};
 
     rows.forEach(r => {
@@ -125,9 +143,6 @@ fetch("DNR_Adressen.csv")
               <td>${addr.street}</td>
               <td>${addr.city}</td>
               <td>${addr.zip}</td>
-              <td style="text-align:center">
-                <input type="checkbox">
-              </td>
             </tr>
           `;
           found = true;
