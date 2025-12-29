@@ -26,31 +26,25 @@ input {
   max-width: 300px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
 }
 
 p#noResults {
   text-align: center;
   color: #d9534f;
   font-weight: bold;
-  margin-top: 10px;
 }
 
 table {
   border-collapse: collapse;
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
   margin: 20px auto;
   background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  display: block;
-  overflow-x: auto;
 }
 
 th, td {
   border: 1px solid #ddd;
   padding: 10px;
-  text-align: left;
   white-space: nowrap;
 }
 
@@ -59,18 +53,13 @@ th {
   color: #fff;
 }
 
-tr:nth-child(even) {
-  background-color: #f2f2f2;
+/* 🔴🟠 Farbcodes */
+.orange {
+  background-color: #fff3cd;
 }
 
-tr:hover {
-  background-color: #e6f0ff;
-}
-
-@media screen and (max-width: 600px) {
-  table, th, td {
-    font-size: 14px;
-  }
+.red {
+  background-color: #f8d7da;
 }
 </style>
 </head>
@@ -89,6 +78,7 @@ tr:hover {
       <th>Straße</th>
       <th>Ort</th>
       <th>PLZ</th>
+      <th>Danger</th>
     </tr>
   </thead>
   <tbody id="tableBody"></tbody>
@@ -96,29 +86,48 @@ tr:hover {
 
 <script>
 fetch("DNR_Adressen.csv")
-  .then(response => response.text())
+  .then(res => res.text())
   .then(text => {
 
     const rows = text.trim().split("\n").slice(1);
-    const data = rows.map(row =>
-      row.split(";").map(cell => cell.replace(/\u00A0/g, "").trim())
-    );
 
+    // 🔹 Regroupement des adresses
+    const map = {};
+
+    rows.forEach(r => {
+      const [street, city, zip] = r.split(";").map(c => c.trim());
+      const key = `${street}|${city}|${zip}`;
+
+      if (!map[key]) {
+        map[key] = { street, city, zip, count: 1 };
+      } else {
+        map[key].count++;
+      }
+    });
+
+    const data = Object.values(map);
     const tbody = document.getElementById("tableBody");
     const msg = document.getElementById("noResults");
 
     document.getElementById("plzInput").addEventListener("input", function () {
-      const plz = this.value.trim();
+      const plz = this.value.replace(/\D/g, "");
       tbody.innerHTML = "";
       let found = false;
 
-      data.forEach(row => {
-        if (row[2].replace(/\D/g, "") === plz.replace(/\D/g, "")) {
+      data.forEach(addr => {
+        if (addr.zip.replace(/\D/g, "") === plz) {
+          let cls = "";
+          if (addr.count >= 2 && addr.count <= 3) cls = "orange";
+          if (addr.count > 3) cls = "red";
+
           tbody.innerHTML += `
-            <tr>
-              <td>${row[0]}</td>
-              <td>${row[1]}</td>
-              <td>${row[2]}</td>
+            <tr class="${cls}">
+              <td>${addr.street}</td>
+              <td>${addr.city}</td>
+              <td>${addr.zip}</td>
+              <td style="text-align:center">
+                <input type="checkbox">
+              </td>
             </tr>
           `;
           found = true;
@@ -132,4 +141,3 @@ fetch("DNR_Adressen.csv")
 
 </body>
 </html>
-
